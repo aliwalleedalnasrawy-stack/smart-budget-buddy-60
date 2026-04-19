@@ -32,8 +32,11 @@ export const Categories = ({
   const spend = (id: string) =>
     transactions.filter(t => t.category === id && t.type === 'expense').reduce((s, t) => s + t.amount, 0);
 
+  const earned = (id: string) =>
+    transactions.filter(t => t.category === id && t.type === 'income').reduce((s, t) => s + t.amount, 0);
+
   const incCats = categories.filter(c => INCOME_IDS.includes(c.id) || (c.custom && c.color === '#00FF7F'));
-  const expCats = categories.filter(c => !INCOME_IDS.includes(c.id) && c.id !== 'savings_cat');
+  const expCats = categories.filter(c => !INCOME_IDS.includes(c.id) && c.id !== 'savings_cat' && !(c.custom && c.color === '#00FF7F'));
 
   const handleAdd = () => {
     if (!newName.trim()) return;
@@ -47,8 +50,10 @@ export const Categories = ({
   };
 
   const CategoryCard = (cat: Category) => {
+    const isIncome = INCOME_IDS.includes(cat.id) || (cat.custom && cat.color === '#00FF7F');
     const spent  = spend(cat.id);
-    const pct    = cat.limit ? Math.min((spent / cat.limit) * 100, 100) : null;
+    const income = earned(cat.id);
+    const pct    = !isIncome && cat.limit ? Math.min((spent / cat.limit) * 100, 100) : null;
     const bc     = pct !== null ? getCategoryColor(pct) : cat.color;
     const isEd   = editing === cat.id;
     const isDel  = cat.custom && !SYSTEM_IDS.includes(cat.id);
@@ -117,10 +122,14 @@ export const Categories = ({
                     style={{ background: bc, boxShadow: `0 0 6px ${bc}55` }} />
                 </div>
               </>
+            ) : isIncome ? (
+              <p className="text-xs font-bold" style={{ color: '#00FF7F' }}>
+                إجمالي الدخل: {income.toLocaleString('ar-IQ')} {currencySymbol}
+              </p>
             ) : (
               <p className="text-xs" style={{ color: '#374151' }}>
                 {spent > 0 ? `${spent.toLocaleString('ar-IQ')} ${currencySymbol}` : 'لا إنفاق بعد'}
-                {!INCOME_IDS.includes(cat.id) && cat.id !== 'savings_cat' && (
+                {cat.id !== 'savings_cat' && (
                   <span style={{ color: '#4B5563' }}> — ✏ لتعيين حد</span>
                 )}
               </p>
