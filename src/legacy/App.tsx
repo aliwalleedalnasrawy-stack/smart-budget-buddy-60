@@ -9,6 +9,8 @@ import { AddTransaction } from './components/screens/AddTransaction';
 import { Categories } from './components/screens/Categories';
 import { ArchiveScreen } from './components/screens/Archive';
 import { Profile } from './components/screens/Profile';
+import { AuthScreen } from './components/AuthScreen';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useBudget } from './hooks/useBudget';
 import { Screen, Currency } from './types';
 
@@ -18,24 +20,47 @@ const pv = {
   exit:    { opacity: 0, y: -8 },
 };
 
-export default function App() {
+function AppInner() {
+  const { user, loading: authLoading } = useAuth();
   const [screen, setScreen]    = useState<Screen>('splash');
   const [filterCat, setFilter] = useState<string | undefined>(undefined);
   const budget = useBudget();
 
   const nav = (s: Screen) => { if (s !== 'transactions') setFilter(undefined); setScreen(s); };
-
   const onSplashDone = () => setScreen(budget.settings.setupDone ? 'dashboard' : 'setup');
-
   const onSetup = (currency: Currency, customSymbol: string) => {
     budget.updateSettings({ currency, customSymbol, setupDone: true });
     setScreen('dashboard');
   };
-
   const onCatFilter = (id: string) => { setFilter(id); setScreen('transactions'); };
+
+  // 1. Splash always first
+  if (screen === 'splash') {
+    return (
+      <div className="min-h-screen" style={{ background: '#000000', fontFamily: "'Cairo', sans-serif" }}>
+        <AnimatePresence mode="wait">
+          <SplashScreen key="splash" onDone={onSplashDone} />
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  // 2. Auth gate after splash
+  if (authLoading) {
+    return <div className="min-h-screen" style={{ background: '#000000' }} />;
+  }
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  // 3. Wait for budget data load
+  if (!budget.loaded) {
+    return <div className="min-h-screen" style={{ background: '#000000' }} />;
+  }
 
   const sym            = budget.getCurrencySymbol();
   const archivedMonths = budget.getArchivedMonths();
+  const showNav: Screen[] = ['dashboard','transactions','add','categories','archive','profile'];
 
   const renderScreen = () => {
     switch (screen) {
@@ -47,34 +72,27 @@ export default function App() {
           spendingProgress={budget.spendingProgress}
           currentTransactions={budget.currentTransactions} categories={budget.categories}
           settings={budget.settings} currencySymbol={sym} onNavigate={nav} currentMonth={budget.currentMonth} />;
-
       case 'transactions':
         return <Transactions
           transactions={budget.currentTransactions} categories={budget.categories}
           currencySymbol={sym} filterCategory={filterCat}
           onDelete={budget.deleteTransaction} onUndo={budget.undoDelete} />;
-
       case 'add':
         return <AddTransaction
           categories={budget.categories} currencySymbol={sym}
-          pots={budget.pots}
-          onAdd={budget.addTransaction}
-          onAddPot={budget.addPot}
-          onDeletePot={budget.deletePot}
+          pots={budget.pots} onAdd={budget.addTransaction}
+          onAddPot={budget.addPot} onDeletePot={budget.deletePot}
           onDone={() => nav('dashboard')} />;
-
       case 'categories':
         return <Categories
           categories={budget.categories} transactions={budget.currentTransactions}
           currencySymbol={sym} onUpdate={budget.updateCategory}
           onAdd={budget.addCategory} onDelete={budget.deleteCategory}
           onFilterTransactions={onCatFilter} />;
-
       case 'archive':
         return <ArchiveScreen
           archivedMonths={archivedMonths} categories={budget.categories}
           currencySymbol={sym} />;
-
       case 'profile':
         return <Profile
           settings={budget.settings} transactions={budget.currentTransactions}
@@ -83,20 +101,13 @@ export default function App() {
           totalSavings={budget.totalSavings} netBalance={budget.netBalance}
           onUpdateSettings={budget.updateSettings} onReset={budget.resetApp}
           onNavigate={nav} />;
-
       default:
         return null;
     }
   };
 
-  const showNav: Screen[] = ['dashboard','transactions','add','categories','archive','profile'];
-
   return (
     <div className="min-h-screen" style={{ background: '#020617', fontFamily: "'Cairo', sans-serif" }}>
-      <AnimatePresence mode="wait">
-        {screen === 'splash' && <SplashScreen key="splash" onDone={onSplashDone} />}
-      </AnimatePresence>
-
       {screen === 'setup' && <CurrencySetup onComplete={onSetup} />}
 
       {showNav.includes(screen) && (
@@ -113,5 +124,13 @@ export default function App() {
         </>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }
