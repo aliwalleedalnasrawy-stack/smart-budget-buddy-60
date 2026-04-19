@@ -1,26 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import App from "@/legacy/App";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "ميزانيتي الذكية - Smart Monthly Budget" },
+      {
+        name: "description",
+        content:
+          "تطبيق الميزانية الشهرية الذكية: تتبع الدخل والمصروفات والادخار بسهولة.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
-
 function Index() {
-  return <PlaceholderIndex />;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    document.documentElement.dir = "rtl";
+    document.documentElement.lang = "ar";
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ background: "#020617", color: "#fff" }}
+      >
+        <p style={{ fontFamily: "'Cairo', sans-serif" }}>جارٍ التحميل...</p>
+      </div>
+    );
+  }
+
+  return <App />;
 }
