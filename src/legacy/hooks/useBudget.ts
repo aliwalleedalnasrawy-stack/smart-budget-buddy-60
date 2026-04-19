@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Transaction, Category, AppSettings, ArchivedMonth } from "../types";
+import { Transaction, Category, AppSettings, ArchivedMonth, SavingPot } from "../types";
 import {
   loadTransactions, saveTransactions, loadCategories, saveCategories,
   loadSettings, saveSettings, loadArchives, saveArchives,
+  loadPots, savePots,
   getCurrentMonth, getMonthLabel, clearAllData,
 } from "../utils/storage";
 import { INCOME_IDS, SAVING_IDS } from "../utils/categories";
@@ -11,6 +12,7 @@ export const useBudget = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories,   setCategories]   = useState<Category[]>([]);
   const [archives,     setArchives]     = useState<ArchivedMonth[]>([]);
+  const [pots,         setPots]         = useState<SavingPot[]>([]);
   const [settings,     setSettings]     = useState<AppSettings>({
     currency: "IQD", customSymbol: "", setupDone: false, rolloverProcessed: "",
   });
@@ -19,6 +21,7 @@ export const useBudget = () => {
     setTransactions(loadTransactions());
     setCategories(loadCategories());
     setArchives(loadArchives());
+    setPots(loadPots());
     setSettings(loadSettings());
   }, []);
 
@@ -30,6 +33,7 @@ export const useBudget = () => {
   const netBalance          = totalIncome - totalExpenses - totalSavings;
   const recommendedSavings  = totalIncome * 0.2;
   const savingsProgress     = recommendedSavings > 0 ? Math.min((totalSavings / recommendedSavings) * 100, 100) : 0;
+  const spendingProgress    = totalIncome > 0 ? Math.min((totalExpenses / totalIncome) * 100, 100) : 0;
 
   const allMonths = Array.from(new Set(transactions.map(t => t.month))).sort().reverse();
 
@@ -79,6 +83,17 @@ export const useBudget = () => {
     setCategories(updated); saveCategories(updated);
   }, [categories]);
 
+  const addPot = useCallback((pot: Omit<SavingPot, "id" | "createdAt">) => {
+    const newPot: SavingPot = { ...pot, id: "pot_" + Date.now(), createdAt: new Date().toISOString() };
+    const updated = [...pots, newPot];
+    setPots(updated); savePots(updated);
+  }, [pots]);
+
+  const deletePot = useCallback((id: string) => {
+    const updated = pots.filter(p => p.id !== id);
+    setPots(updated); savePots(updated);
+  }, [pots]);
+
   const updateSettings = useCallback((patch: Partial<AppSettings>) => {
     const updated = { ...settings, ...patch };
     setSettings(updated); saveSettings(updated);
@@ -96,11 +111,12 @@ export const useBudget = () => {
   const isSavingCategory  = (id: string) => SAVING_IDS.includes(id);
 
   return {
-    transactions, currentTransactions, categories, archives, settings,
+    transactions, currentTransactions, categories, archives, pots, settings,
     totalIncome, totalExpenses, totalSavings, netBalance,
-    recommendedSavings, savingsProgress, currentMonth,
+    recommendedSavings, savingsProgress, spendingProgress, currentMonth,
     addTransaction, deleteTransaction, undoDelete,
     updateCategory, addCategory, deleteCategory,
+    addPot, deletePot,
     updateSettings, resetApp, getCurrencySymbol,
     getArchivedMonths, isIncomeCategory, isSavingCategory,
   };

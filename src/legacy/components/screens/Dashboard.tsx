@@ -7,7 +7,7 @@ import { getCategoryColor } from '../../utils/categories';
 
 interface Props {
   totalIncome: number; totalExpenses: number; totalSavings: number; netBalance: number;
-  recommendedSavings: number; savingsProgress: number;
+  recommendedSavings: number; savingsProgress: number; spendingProgress: number;
   currentTransactions: Transaction[]; categories: Category[];
   settings: AppSettings; currencySymbol: string;
   onNavigate: (s: Screen) => void;
@@ -31,7 +31,7 @@ const getMonthYearDisplay = (monthStr: string) => {
 
 export const Dashboard = ({
   totalIncome, totalExpenses, totalSavings, netBalance,
-  recommendedSavings, savingsProgress, currentTransactions,
+  recommendedSavings, savingsProgress, spendingProgress, currentTransactions,
   categories, settings, currencySymbol, onNavigate, currentMonth,
 }: Props) => {
   const [showTip, setShowTip] = useState(false);
@@ -45,10 +45,16 @@ export const Dashboard = ({
     return 'تنبيه: مدخراتك دون المستهدف. راجع مصاريفك وابحث عن فرص لتوفير 20% من دخلك.';
   };
 
-  const barColor = () => {
+  const savingsBarColor = () => {
     if (savingsProgress >= 100) return '#00FF7F';
     if (savingsProgress >= 50)  return '#F59E0B';
     return '#EF4444';
+  };
+
+  const spendingBarColor = () => {
+    if (spendingProgress > 80) return '#EF4444';
+    if (spendingProgress >= 50) return '#F59E0B';
+    return '#00FF7F';
   };
 
   const topExpenses = (() => {
@@ -66,29 +72,29 @@ export const Dashboard = ({
   return (
     <div className="pb-24 px-4 pt-4 max-w-lg mx-auto space-y-4">
 
+      {/* Cleaned Header: Avatar+Greeting (side) + Quote (center/horizontal) */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center justify-center gap-3 mb-6">
+        className="flex items-center gap-3 mb-4">
 
-        <div className="flex items-center gap-3 w-full">
-          <button onClick={() => onNavigate('profile')}
-            className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
-            style={{
-              background: settings.avatarUrl ? `url(${settings.avatarUrl}) center/cover` : 'linear-gradient(135deg, #D4A017, #F59E0B)',
-              backgroundSize: 'cover', backgroundPosition: 'center',
-              border: '2px solid rgba(212,160,23,0.5)',
-              boxShadow: '0 0 14px rgba(212,160,23,0.3)',
-            }}>
-            {!settings.avatarUrl && <span className="text-slate-950 font-black text-base">ع</span>}
-          </button>
-          <div className="flex-1">
-            <p className="text-lg font-black text-white">مرحباً بك، علي</p>
-            <p className="text-[11px] mt-0.5" style={{ color: '#6B7280', fontWeight: '300', letterSpacing: '0.3px' }}>
-              {monthYearDisplay}
-            </p>
-          </div>
+        <button onClick={() => onNavigate('profile')}
+          className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
+          style={{
+            background: settings.avatarUrl ? `url(${settings.avatarUrl}) center/cover` : 'linear-gradient(135deg, #D4A017, #F59E0B)',
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            border: '2px solid rgba(212,160,23,0.5)',
+            boxShadow: '0 0 14px rgba(212,160,23,0.3)',
+          }}>
+          {!settings.avatarUrl && <span className="text-slate-950 font-black text-base">ع</span>}
+        </button>
+
+        <div className="flex-shrink-0">
+          <p className="text-sm font-black text-white leading-tight">مرحباً، علي</p>
+          <p className="text-[10px] mt-0.5" style={{ color: '#6B7280', fontWeight: 300, letterSpacing: '0.3px' }}>
+            {monthYearDisplay}
+          </p>
         </div>
 
-        <div className="w-full">
+        <div className="flex-1 min-w-0">
           <WisdomQuote compact={true}/>
         </div>
       </motion.div>
@@ -129,43 +135,72 @@ export const Dashboard = ({
         </div>
       </motion.div>
 
+      {/* Dual Progress: Spending (top) + Savings (bottom) */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="rounded-2xl p-5"
+        className="rounded-2xl p-5 space-y-5"
         style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-sm font-bold text-white">المستشار الذكي للادخار</p>
-            <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>هدف الـ 20% من الدخل</p>
+
+        {/* Spending Progress Bar */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-bold text-white">خط الإنفاق العام</p>
+            <span className="text-xs font-bold" style={{ color: spendingBarColor() }}>
+              استهلاك الميزانية: {spendingProgress.toFixed(0)}%
+            </span>
           </div>
-          <button onClick={() => setShowTip(p => !p)}
-            className="text-xs px-3 py-1 rounded-lg font-semibold"
-            style={{ background: 'rgba(212,160,23,0.1)', color: '#D4A017', border: '1px solid rgba(212,160,23,0.2)' }}>
-            {showTip ? 'إخفاء' : 'نصيحة'}
-          </button>
+          <div className="flex justify-between text-xs mb-2" style={{ color: '#6B7280' }}>
+            <span>المنفق: {f(totalExpenses, currencySymbol)}</span>
+            <span>من الدخل: {f(totalIncome, currencySymbol)}</span>
+          </div>
+          <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <motion.div initial={{ width: 0 }} animate={{ width: `${spendingProgress}%` }}
+              transition={{ duration: 1.1, delay: 0.2, ease: 'easeOut' }}
+              className="h-full rounded-full"
+              style={{ background: `linear-gradient(90deg, ${spendingBarColor()}, ${spendingBarColor()}bb)`,
+                boxShadow: `0 0 10px ${spendingBarColor()}55` }}/>
+          </div>
         </div>
 
-        <div className="flex justify-between text-xs mb-2" style={{ color: '#6B7280' }}>
-          <span>الفعلي: {f(totalSavings, currencySymbol)}</span>
-          <span>المستهدف: {f(recommendedSavings, currencySymbol)}</span>
-        </div>
-        <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <motion.div initial={{ width: 0 }} animate={{ width: `${savingsProgress}%` }}
-            transition={{ duration: 1.1, delay: 0.3, ease: 'easeOut' }}
-            className="h-full rounded-full"
-            style={{ background: `linear-gradient(90deg, ${barColor()}, ${barColor()}bb)`,
-              boxShadow: `0 0 10px ${barColor()}55` }}/>
-        </div>
-        <p className="text-xs mt-2 font-bold" style={{ color: barColor() }}>
-          {savingsProgress.toFixed(0)}% من الهدف
-        </p>
+        {/* Divider */}
+        <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }}/>
 
-        {showTip && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-            className="mt-3 p-3 rounded-xl text-xs leading-relaxed"
-            style={{ background: 'rgba(212,160,23,0.06)', border: '1px solid rgba(212,160,23,0.14)', color: '#E5E7EB' }}>
-            {tip()}
-          </motion.div>
-        )}
+        {/* Savings Progress Bar */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-bold text-white">المستشار الذكي للادخار</p>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>هدف الـ 20% من الدخل</p>
+            </div>
+            <button onClick={() => setShowTip(p => !p)}
+              className="text-xs px-3 py-1 rounded-lg font-semibold"
+              style={{ background: 'rgba(212,160,23,0.1)', color: '#D4A017', border: '1px solid rgba(212,160,23,0.2)' }}>
+              {showTip ? 'إخفاء' : 'نصيحة'}
+            </button>
+          </div>
+
+          <div className="flex justify-between text-xs mb-2" style={{ color: '#6B7280' }}>
+            <span>الفعلي: {f(totalSavings, currencySymbol)}</span>
+            <span>المستهدف: {f(recommendedSavings, currencySymbol)}</span>
+          </div>
+          <div className="h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <motion.div initial={{ width: 0 }} animate={{ width: `${savingsProgress}%` }}
+              transition={{ duration: 1.1, delay: 0.3, ease: 'easeOut' }}
+              className="h-full rounded-full"
+              style={{ background: `linear-gradient(90deg, ${savingsBarColor()}, ${savingsBarColor()}bb)`,
+                boxShadow: `0 0 10px ${savingsBarColor()}55` }}/>
+          </div>
+          <p className="text-xs mt-2 font-bold" style={{ color: savingsBarColor() }}>
+            {savingsProgress.toFixed(0)}% من الهدف
+          </p>
+
+          {showTip && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+              className="mt-3 p-3 rounded-xl text-xs leading-relaxed"
+              style={{ background: 'rgba(212,160,23,0.06)', border: '1px solid rgba(212,160,23,0.14)', color: '#E5E7EB' }}>
+              {tip()}
+            </motion.div>
+          )}
+        </div>
       </motion.div>
 
       {topExpenses.length > 0 && (
@@ -219,7 +254,7 @@ export const Dashboard = ({
                     <Wallet size={14} style={{ color: cat?.color ?? '#6B7280' }}/>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white">{cat?.name ?? tx.category}</p>
+                    <p className="text-sm font-medium text-white truncate">{tx.name || cat?.name || tx.category}</p>
                     <p className="text-[10px]" style={{ color: '#374151' }}>{tx.date}</p>
                   </div>
                   <p className="text-sm font-bold flex-shrink-0" style={{ color }}>

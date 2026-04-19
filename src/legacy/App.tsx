@@ -44,6 +44,7 @@ export default function App() {
           totalIncome={budget.totalIncome} totalExpenses={budget.totalExpenses}
           totalSavings={budget.totalSavings} netBalance={budget.netBalance}
           recommendedSavings={budget.recommendedSavings} savingsProgress={budget.savingsProgress}
+          spendingProgress={budget.spendingProgress}
           currentTransactions={budget.currentTransactions} categories={budget.categories}
           settings={budget.settings} currencySymbol={sym} onNavigate={nav} currentMonth={budget.currentMonth} />;
 
@@ -56,7 +57,11 @@ export default function App() {
       case 'add':
         return <AddTransaction
           categories={budget.categories} currencySymbol={sym}
-          onAdd={budget.addTransaction} onDone={() => nav('dashboard')} />;
+          pots={budget.pots}
+          onAdd={budget.addTransaction}
+          onAddPot={budget.addPot}
+          onDeletePot={budget.deletePot}
+          onDone={() => nav('dashboard')} />;
 
       case 'categories':
         return <Categories
