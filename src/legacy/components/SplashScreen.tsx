@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logo from '@/assets/app-logo.jpg';
+import logo from '@/assets/app-logo.png';
 
 export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   useEffect(() => {
-    const t = setTimeout(onDone, 2000);
+    const t = setTimeout(onDone, 3000);
     return () => clearTimeout(t);
   }, [onDone]);
 
@@ -12,26 +12,23 @@ export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: 'easeInOut' }}
+      transition={{ duration: 0.6, ease: 'easeInOut' }}
       className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #020617 0%, #040C1A 50%, #020617 100%)' }}
+      style={{ background: '#000000' }}
     >
       <motion.img
         src={logo}
         alt="ميزانيتي الذكية"
         initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="w-40 h-40 md:w-48 md:h-48 rounded-[2rem] mb-8"
-        style={{
-          boxShadow: '0 0 60px rgba(168, 85, 247, 0.35), 0 0 120px rgba(59, 130, 246, 0.2)',
-        }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        className="w-48 h-48 md:w-60 md:h-60 mb-8 object-contain"
       />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
+        transition={{ delay: 0.5, duration: 0.7 }}
         className="text-center px-8"
       >
         <h1
