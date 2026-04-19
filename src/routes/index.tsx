@@ -29,10 +29,7 @@ function Index() {
     return (
       <div
         className="min-h-screen"
-        style={{
-          background:
-            "linear-gradient(135deg, #020617 0%, #040C1A 50%, #020617 100%)",
-        }}
+        style={{ background: "#000000" }}
       />
     );
   }
