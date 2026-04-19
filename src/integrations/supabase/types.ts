@@ -14,7 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          cat_type: string
+          category_limit: number | null
+          color: string
+          created_at: string
+          custom: boolean
+          icon: string
+          id: string
+          legacy_id: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cat_type?: string
+          category_limit?: number | null
+          color?: string
+          created_at?: string
+          custom?: boolean
+          icon?: string
+          id?: string
+          legacy_id?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cat_type?: string
+          category_limit?: number | null
+          color?: string
+          created_at?: string
+          custom?: boolean
+          icon?: string
+          id?: string
+          legacy_id?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          currency: string
+          custom_symbol: string | null
+          display_name: string | null
+          id: string
+          setup_done: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          currency?: string
+          custom_symbol?: string | null
+          display_name?: string | null
+          id?: string
+          setup_done?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          currency?: string
+          custom_symbol?: string | null
+          display_name?: string | null
+          id?: string
+          setup_done?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      savings_pots: {
+        Row: {
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          target_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name: string
+          target_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          target_amount?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          month: string
+          name: string | null
+          note: string | null
+          pot: string | null
+          tx_date: string
+          tx_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          id?: string
+          month: string
+          name?: string | null
+          note?: string | null
+          pot?: string | null
+          tx_date?: string
+          tx_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          month?: string
+          name?: string | null
+          note?: string | null
+          pot?: string | null
+          tx_date?: string
+          tx_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
