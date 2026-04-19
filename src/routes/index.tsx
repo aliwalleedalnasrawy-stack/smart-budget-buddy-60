@@ -28,11 +28,12 @@ function Index() {
   if (!mounted) {
     return (
       <div
-        className="flex min-h-screen items-center justify-center"
-        style={{ background: "#020617", color: "#fff" }}
-      >
-        <p style={{ fontFamily: "'Cairo', sans-serif" }}>جارٍ التحميل...</p>
-      </div>
+        className="min-h-screen"
+        style={{
+          background:
+            "linear-gradient(135deg, #020617 0%, #040C1A 50%, #020617 100%)",
+        }}
+      />
     );
   }
 
