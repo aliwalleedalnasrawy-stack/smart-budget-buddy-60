@@ -2,12 +2,14 @@ export type TransactionType = "income" | "expense" | "saving";
 
 export interface Transaction {
   id: string;
+  name?: string;
   amount: number;
   type: TransactionType;
   category: string;
   date: string;
   note?: string;
   month: string;
+  pot?: string;
 }
 
 export interface Category {
@@ -17,6 +19,15 @@ export interface Category {
   limit?: number;
   color: string;
   custom?: boolean;
+}
+
+export interface SavingPot {
+  id: string;
+  name: string;
+  target?: number;
+  color: string;
+  icon: string;
+  createdAt: string;
 }
 
 export interface ArchivedMonth {

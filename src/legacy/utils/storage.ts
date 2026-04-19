@@ -1,4 +1,4 @@
-import { Transaction, Category, AppSettings, ArchivedMonth } from "../types";
+import { Transaction, Category, AppSettings, ArchivedMonth, SavingPot } from "../types";
 import { DEFAULT_CATEGORIES } from "./categories";
 
 const K = {
@@ -6,6 +6,7 @@ const K = {
   CATS:     "ali_cats",
   SETTINGS: "ali_settings",
   ARCHIVES: "ali_archives",
+  POTS:     "ali_pots",
 };
 
 const parse = <T>(key: string, fallback: T): T => {
@@ -21,6 +22,8 @@ export const loadSettings      = (): AppSettings      => parse(K.SETTINGS, { cur
 export const saveSettings      = (v: AppSettings)     => localStorage.setItem(K.SETTINGS, JSON.stringify(v));
 export const loadArchives      = (): ArchivedMonth[]  => parse(K.ARCHIVES, []);
 export const saveArchives      = (v: ArchivedMonth[]) => localStorage.setItem(K.ARCHIVES, JSON.stringify(v));
+export const loadPots          = (): SavingPot[]      => parse(K.POTS, []);
+export const savePots          = (v: SavingPot[])     => localStorage.setItem(K.POTS, JSON.stringify(v));
 export const clearAllData      = ()                   => Object.values(K).forEach(k => localStorage.removeItem(k));
 
 export const getCurrentMonth = (): string => {
