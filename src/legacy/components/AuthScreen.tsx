@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
-import logo from '@/assets/app-logo.png';
+import logo from '@/assets/app-logo-transparent.png';
 
 type Mode = 'login' | 'signup';
 
