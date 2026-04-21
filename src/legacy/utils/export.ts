@@ -45,16 +45,16 @@ export const exportToPDF = (
 
   const txRows = (list: Transaction[]) =>
     list.map(tx =>
-      '<tr><td>' + tx.date + '</td>' +
-      '<td style="color:' + rowColor(tx.type) + '">' + typeAr(tx.type) + '</td>' +
-      '<td>' + catName(tx.category, cats) + '</td>' +
-      '<td>' + tx.amount.toLocaleString('ar-IQ') + ' ' + symbol + '</td>' +
-      '<td>' + (tx.note ?? '') + '</td></tr>'
+      '<tr><td>' + esc(tx.date) + '</td>' +
+      '<td style="color:' + rowColor(tx.type) + '">' + esc(typeAr(tx.type)) + '</td>' +
+      '<td>' + esc(catName(tx.category, cats)) + '</td>' +
+      '<td>' + esc(tx.amount.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</td>' +
+      '<td>' + esc(tx.note ?? '') + '</td></tr>'
     ).join('');
 
   const archiveSections = archived.map(a =>
-    '<h3 style="color:#D4A017;margin-top:24px">' + a.label + '</h3>' +
-    '<p style="font-size:12px;color:#555">دخل: ' + a.totalIncome.toLocaleString('ar-IQ') + ' | مصاريف: ' + a.totalExpenses.toLocaleString('ar-IQ') + ' | مدخرات: ' + a.totalSavings.toLocaleString('ar-IQ') + ' ' + symbol + '</p>' +
+    '<h3 style="color:#D4A017;margin-top:24px">' + esc(a.label) + '</h3>' +
+    '<p style="font-size:12px;color:#555">دخل: ' + esc(a.totalIncome.toLocaleString('ar-IQ')) + ' | مصاريف: ' + esc(a.totalExpenses.toLocaleString('ar-IQ')) + ' | مدخرات: ' + esc(a.totalSavings.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</p>' +
     '<table><thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>' + txRows(a.transactions) + '</tbody></table>'
   ).join('');
 
@@ -68,10 +68,10 @@ export const exportToPDF = (
     'td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}</style></head><body>' +
     '<h1>ميزانية علي الذكية</h1><h2 style="color:#555;text-align:center;font-weight:400">' + getMonthLabel(month) + '</h2>' +
     '<div class="summary">' +
-    '<div class="card"><div class="card-label">الدخل</div><div class="card-value" style="color:#00C45F">' + totals.income.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
-    '<div class="card"><div class="card-label">المصاريف</div><div class="card-value" style="color:#EF4444">' + totals.expenses.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
-    '<div class="card"><div class="card-label">المدخرات</div><div class="card-value" style="color:#D4A017">' + totals.savings.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
-    '<div class="card"><div class="card-label">الرصيد الصافي</div><div class="card-value" style="color:#3B82F6">' + totals.net.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
+    '<div class="card"><div class="card-label">الدخل</div><div class="card-value" style="color:#00C45F">' + esc(totals.income.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
+    '<div class="card"><div class="card-label">المصاريف</div><div class="card-value" style="color:#EF4444">' + esc(totals.expenses.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
+    '<div class="card"><div class="card-label">المدخرات</div><div class="card-value" style="color:#D4A017">' + esc(totals.savings.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
+    '<div class="card"><div class="card-label">الرصيد الصافي</div><div class="card-value" style="color:#3B82F6">' + esc(totals.net.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
     '</div>' +
     '<h3 style="color:#D4A017">الشهر الحالي</h3>' +
     '<table><thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>' + txRows(txns) + '</tbody></table>' +
