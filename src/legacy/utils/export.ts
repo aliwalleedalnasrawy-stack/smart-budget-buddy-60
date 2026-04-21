@@ -45,16 +45,16 @@ export const exportToPDF = (
 
   const txRows = (list: Transaction[]) =>
     list.map(tx =>
-      '<tr><td>' + tx.date + '</td>' +
-      '<td style="color:' + rowColor(tx.type) + '">' + typeAr(tx.type) + '</td>' +
-      '<td>' + catName(tx.category, cats) + '</td>' +
-      '<td>' + tx.amount.toLocaleString('ar-IQ') + ' ' + symbol + '</td>' +
-      '<td>' + (tx.note ?? '') + '</td></tr>'
+      '<tr><td>' + esc(tx.date) + '</td>' +
+      '<td style="color:' + rowColor(tx.type) + '">' + esc(typeAr(tx.type)) + '</td>' +
+      '<td>' + esc(catName(tx.category, cats)) + '</td>' +
+      '<td>' + esc(tx.amount.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</td>' +
+      '<td>' + esc(tx.note ?? '') + '</td></tr>'
     ).join('');
 
   const archiveSections = archived.map(a =>
-    '<h3 style="color:#D4A017;margin-top:24px">' + a.label + '</h3>' +
-    '<p style="font-size:12px;color:#555">دخل: ' + a.totalIncome.toLocaleString('ar-IQ') + ' | مصاريف: ' + a.totalExpenses.toLocaleString('ar-IQ') + ' | مدخرات: ' + a.totalSavings.toLocaleString('ar-IQ') + ' ' + symbol + '</p>' +
+    '<h3 style="color:#D4A017;margin-top:24px">' + esc(a.label) + '</h3>' +
+    '<p style="font-size:12px;color:#555">دخل: ' + esc(a.totalIncome.toLocaleString('ar-IQ')) + ' | مصاريف: ' + esc(a.totalExpenses.toLocaleString('ar-IQ')) + ' | مدخرات: ' + esc(a.totalSavings.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</p>' +
     '<table><thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>' + txRows(a.transactions) + '</tbody></table>'
   ).join('');
 
