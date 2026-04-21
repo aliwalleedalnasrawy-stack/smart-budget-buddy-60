@@ -7,6 +7,14 @@ const getSym = (s: AppSettings) =>
 const catName = (id: string, cats: Category[]) => cats.find(c => c.id === id)?.name ?? id;
 const typeAr  = (t: string) => t === 'income' ? 'دخل' : t === 'expense' ? 'مصروف' : 'مدخرات';
 
+const esc = (v: unknown) =>
+  String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 export const exportToCSV = (
   txns: Transaction[], cats: Category[], s: AppSettings,
   month: string, archived: ArchivedMonth[] = []
