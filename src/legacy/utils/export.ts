@@ -68,10 +68,10 @@ export const exportToPDF = (
     'td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}</style></head><body>' +
     '<h1>ميزانية علي الذكية</h1><h2 style="color:#555;text-align:center;font-weight:400">' + getMonthLabel(month) + '</h2>' +
     '<div class="summary">' +
-    '<div class="card"><div class="card-label">الدخل</div><div class="card-value" style="color:#00C45F">' + totals.income.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
-    '<div class="card"><div class="card-label">المصاريف</div><div class="card-value" style="color:#EF4444">' + totals.expenses.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
-    '<div class="card"><div class="card-label">المدخرات</div><div class="card-value" style="color:#D4A017">' + totals.savings.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
-    '<div class="card"><div class="card-label">الرصيد الصافي</div><div class="card-value" style="color:#3B82F6">' + totals.net.toLocaleString('ar-IQ') + ' ' + symbol + '</div></div>' +
+    '<div class="card"><div class="card-label">الدخل</div><div class="card-value" style="color:#00C45F">' + esc(totals.income.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
+    '<div class="card"><div class="card-label">المصاريف</div><div class="card-value" style="color:#EF4444">' + esc(totals.expenses.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
+    '<div class="card"><div class="card-label">المدخرات</div><div class="card-value" style="color:#D4A017">' + esc(totals.savings.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
+    '<div class="card"><div class="card-label">الرصيد الصافي</div><div class="card-value" style="color:#3B82F6">' + esc(totals.net.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
     '</div>' +
     '<h3 style="color:#D4A017">الشهر الحالي</h3>' +
     '<table><thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>' + txRows(txns) + '</tbody></table>' +
