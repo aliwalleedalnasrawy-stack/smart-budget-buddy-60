@@ -4,7 +4,7 @@ import logo from '@/assets/app-logo.png';
 
 export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   useEffect(() => {
-    const t = setTimeout(onDone, 3000);
+    const t = setTimeout(onDone, 4000);
     return () => clearTimeout(t);
   }, [onDone]);
 
@@ -35,7 +35,7 @@ export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
           className="text-3xl md:text-4xl font-black mb-2"
           style={{ color: '#D4A017', textShadow: '0 0 30px rgba(212,160,23,0.45)' }}
         >
-          مرحباً بك، علي
+          مرحباً بك في تطبيق ميزانيتي الذكية
         </h1>
         <p
           className="text-base md:text-lg font-semibold tracking-widest"
