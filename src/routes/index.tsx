@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import App from "@/legacy/App";
+import { registerServiceWorker } from "@/legacy/utils/registerSW";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,6 +24,7 @@ function Index() {
     setMounted(true);
     document.documentElement.dir = "rtl";
     document.documentElement.lang = "ar";
+    registerServiceWorker();
   }, []);
 
   if (!mounted) {

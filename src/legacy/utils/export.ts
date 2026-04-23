@@ -58,14 +58,12 @@ export const exportToPDF = (
     '<table><thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>' + txRows(a.transactions) + '</tbody></table>'
   ).join('');
 
-  const html = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"/>' +
-    '<title>ميزانية علي - ' + getMonthLabel(month) + '</title>' +
-    '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"/>' +
-    '<style>body{font-family:Cairo,sans-serif;padding:24px;direction:rtl}h1{color:#D4A017;text-align:center}' +
-    '.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}.card{flex:1;min-width:100px;padding:10px 14px;border-radius:8px;text-align:center;border:1px solid #ddd}' +
-    '.card-label{font-size:11px;color:#666}.card-value{font-size:17px;font-weight:700;margin-top:4px}' +
-    'table{width:100%;border-collapse:collapse;margin-bottom:16px}th{background:#020617;color:#D4A017;padding:10px;font-size:13px}' +
-    'td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}</style></head><body>' +
+  const bodyHtml =
+    '<div class="actions no-print">' +
+      '<button onclick="window.print()" class="btn btn-primary">🖨️ طباعة</button>' +
+      '<button id="dl-pdf" class="btn btn-secondary">⬇️ تحميل PDF</button>' +
+      '<button onclick="window.close()" class="btn btn-ghost">إغلاق</button>' +
+    '</div>' +
     '<h1>ميزانية علي الذكية</h1><h2 style="color:#555;text-align:center;font-weight:400">' + getMonthLabel(month) + '</h2>' +
     '<div class="summary">' +
     '<div class="card"><div class="card-label">الدخل</div><div class="card-value" style="color:#00C45F">' + esc(totals.income.toLocaleString('ar-IQ')) + ' ' + esc(symbol) + '</div></div>' +
@@ -75,8 +73,38 @@ export const exportToPDF = (
     '</div>' +
     '<h3 style="color:#D4A017">الشهر الحالي</h3>' +
     '<table><thead><tr><th>التاريخ</th><th>النوع</th><th>الفئة</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>' + txRows(txns) + '</tbody></table>' +
-    archiveSections + '</body></html>';
+    archiveSections;
+
+  const filename = 'budget-ali-' + month + '.html';
+  const downloadScript =
+    '<script>(function(){' +
+      'var btn=document.getElementById("dl-pdf");' +
+      'if(!btn)return;' +
+      'btn.addEventListener("click",function(){' +
+        'var html="<!DOCTYPE html>"+document.documentElement.outerHTML;' +
+        'var blob=new Blob([html],{type:"text/html;charset=utf-8"});' +
+        'var a=document.createElement("a");' +
+        'a.href=URL.createObjectURL(blob);' +
+        'a.download=' + JSON.stringify(filename) + ';' +
+        'document.body.appendChild(a);a.click();a.remove();' +
+      '});' +
+    '})();<\/script>';
+
+  const html = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"/>' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1"/>' +
+    '<title>ميزانية علي - ' + getMonthLabel(month) + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"/>' +
+    '<style>body{font-family:Cairo,sans-serif;padding:24px;direction:rtl;max-width:100%;overflow-x:hidden}h1{color:#D4A017;text-align:center}' +
+    '.actions{position:sticky;top:0;background:#fff;padding:12px 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;border-bottom:1px solid #eee;margin-bottom:16px;z-index:10}' +
+    '.btn{padding:10px 18px;border:none;border-radius:8px;font-family:inherit;font-weight:700;cursor:pointer;font-size:14px}' +
+    '.btn-primary{background:#D4A017;color:#000}.btn-secondary{background:#3B82F6;color:#fff}.btn-ghost{background:#eee;color:#333}' +
+    '.summary{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}.card{flex:1;min-width:120px;padding:10px 14px;border-radius:8px;text-align:center;border:1px solid #ddd}' +
+    '.card-label{font-size:11px;color:#666}.card-value{font-size:17px;font-weight:700;margin-top:4px}' +
+    'table{width:100%;border-collapse:collapse;margin-bottom:16px}th{background:#020617;color:#D4A017;padding:10px;font-size:13px}' +
+    'td{padding:8px 10px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}' +
+    '@media print{.no-print{display:none !important}}</style></head><body>' +
+    bodyHtml + downloadScript + '</body></html>';
 
   const win = window.open('', '_blank');
-  if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 500); }
+  if (win) { win.document.write(html); win.document.close(); }
 };

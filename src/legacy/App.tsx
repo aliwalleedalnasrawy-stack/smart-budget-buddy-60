@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SplashScreen } from './components/SplashScreen';
 import { CurrencySetup } from './components/CurrencySetup';
@@ -12,7 +12,10 @@ import { Profile } from './components/screens/Profile';
 import { AuthScreen } from './components/AuthScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useBudget } from './hooks/useBudget';
+import { useBackNavigation } from './hooks/useBackNavigation';
+import { useOnlineStatus } from './hooks/useOfflineSync';
 import { Screen, Currency } from './types';
+import { Toaster } from '@/components/ui/sonner';
 
 const pv = {
   initial: { opacity: 0, y: 10 },
@@ -20,24 +23,54 @@ const pv = {
   exit:    { opacity: 0, y: -8 },
 };
 
+const ROOT_SCREEN: Screen = 'dashboard';
+
 function AppInner() {
   const { user, loading: authLoading } = useAuth();
-  const [screen, setScreen]    = useState<Screen>('splash');
+  const [stack, setStack]      = useState<Screen[]>(['splash']);
   const [filterCat, setFilter] = useState<string | undefined>(undefined);
   const budget = useBudget();
+  useOnlineStatus();
 
-  const nav = (s: Screen) => { if (s !== 'transactions') setFilter(undefined); setScreen(s); };
-  const onSplashDone = () => setScreen(budget.settings.setupDone ? 'dashboard' : 'setup');
+  const screen = stack[stack.length - 1];
+
+  const nav = useCallback((s: Screen) => {
+    if (s !== 'transactions') setFilter(undefined);
+    setStack(prev => {
+      // Replace transient screens (splash/setup) when navigating away
+      if (prev[prev.length - 1] === 'splash' || prev[prev.length - 1] === 'setup') {
+        return [s];
+      }
+      // Don't push duplicates
+      if (prev[prev.length - 1] === s) return prev;
+      return [...prev, s];
+    });
+  }, []);
+
+  const goBack = useCallback(() => {
+    let handled = false;
+    setStack(prev => {
+      if (prev.length <= 1) return prev;
+      handled = true;
+      return prev.slice(0, -1);
+    });
+    return handled;
+  }, []);
+
+  useBackNavigation(screen, goBack, ROOT_SCREEN);
+
+  const onSplashDone = () => nav(budget.settings.setupDone ? 'dashboard' : 'setup');
   const onSetup = (currency: Currency, customSymbol: string) => {
     budget.updateSettings({ currency, customSymbol, setupDone: true });
-    setScreen('dashboard');
+    setStack(['dashboard']);
   };
-  const onCatFilter = (id: string) => { setFilter(id); setScreen('transactions'); };
+  const onCatFilter = (id: string) => { setFilter(id); nav('transactions'); };
 
   // 1. Splash always first
   if (screen === 'splash') {
     return (
-      <div className="min-h-screen" style={{ background: '#000000', fontFamily: "'Cairo', sans-serif" }}>
+      <div className="min-h-screen overflow-x-hidden" style={{ background: '#000000', fontFamily: "'Cairo', sans-serif" }}>
+        <Toaster position="top-center" />
         <AnimatePresence mode="wait">
           <SplashScreen key="splash" onDone={onSplashDone} />
         </AnimatePresence>
@@ -47,15 +80,20 @@ function AppInner() {
 
   // 2. Auth gate after splash
   if (authLoading) {
-    return <div className="min-h-screen" style={{ background: '#000000' }} />;
+    return <div className="min-h-screen overflow-x-hidden" style={{ background: '#000000' }} />;
   }
   if (!user) {
-    return <AuthScreen />;
+    return (
+      <>
+        <Toaster position="top-center" />
+        <AuthScreen />
+      </>
+    );
   }
 
   // 3. Wait for budget data load
   if (!budget.loaded) {
-    return <div className="min-h-screen" style={{ background: '#000000' }} />;
+    return <div className="min-h-screen overflow-x-hidden" style={{ background: '#000000' }} />;
   }
 
   const sym            = budget.getCurrencySymbol();
@@ -107,12 +145,13 @@ function AppInner() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#020617', fontFamily: "'Cairo', sans-serif" }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ background: '#020617', fontFamily: "'Cairo', sans-serif" }}>
+      <Toaster position="top-center" />
       {screen === 'setup' && <CurrencySetup onComplete={onSetup} />}
 
       {showNav.includes(screen) && (
         <>
-          <main style={{ minHeight: '100dvh', paddingBottom: '4rem' }}>
+          <main className="w-full max-w-full overflow-x-hidden" style={{ minHeight: '100dvh', paddingBottom: '4rem' }}>
             <AnimatePresence mode="wait">
               <motion.div key={screen} variants={pv} initial="initial" animate="animate" exit="exit"
                 transition={{ duration: 0.22 }}>
