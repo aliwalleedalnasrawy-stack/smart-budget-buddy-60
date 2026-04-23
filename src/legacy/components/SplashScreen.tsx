@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logo from '@/assets/app-logo.png';
+import logo from '@/assets/app-logo-transparent.png';
 
 export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
   useEffect(() => {
@@ -16,20 +16,20 @@ export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
       className="fixed inset-0 flex flex-col items-center justify-center z-50 overflow-hidden px-4"
       style={{ background: '#000000' }}
     >
-      {/* Outer animated neon halo */}
-      <div className="relative flex items-center justify-center mb-8">
+      {/* Transparent logo with neon halo — no square background */}
+      <div className="relative flex items-center justify-center mb-14">
         <motion.div
           aria-hidden
           initial={{ opacity: 0.4, scale: 0.9 }}
-          animate={{ opacity: [0.45, 0.85, 0.45], scale: [1, 1.08, 1] }}
+          animate={{ opacity: [0.5, 0.9, 0.5], scale: [1, 1.1, 1] }}
           transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute rounded-full"
+          className="absolute rounded-full pointer-events-none"
           style={{
-            width: 'min(78vw, 360px)',
-            height: 'min(78vw, 360px)',
+            width: 'min(92vw, 540px)',
+            height: 'min(92vw, 540px)',
             background:
               'radial-gradient(circle, rgba(212,160,23,0.55) 0%, rgba(0,255,127,0.25) 45%, rgba(0,0,0,0) 72%)',
-            filter: 'blur(22px)',
+            filter: 'blur(28px)',
           }}
         />
         <motion.img
@@ -40,11 +40,12 @@ export const SplashScreen = ({ onDone }: { onDone: () => void }) => {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="relative object-contain"
           style={{
-            width: 'min(72vw, 360px)',
-            height: 'min(72vw, 360px)',
+            width: 'min(88vw, 540px)',
+            height: 'min(88vw, 540px)',
+            background: 'transparent',
             imageRendering: 'auto',
             filter:
-              'drop-shadow(0 0 22px rgba(212,160,23,0.85)) drop-shadow(0 0 44px rgba(0,255,127,0.45))',
+              'drop-shadow(0 0 26px rgba(212,160,23,0.9)) drop-shadow(0 0 52px rgba(0,255,127,0.5))',
           }}
         />
       </div>
