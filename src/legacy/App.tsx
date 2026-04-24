@@ -9,6 +9,7 @@ import { AddTransaction } from './components/screens/AddTransaction';
 import { Categories } from './components/screens/Categories';
 import { ArchiveScreen } from './components/screens/Archive';
 import { Profile } from './components/screens/Profile';
+import { Statistics } from './components/screens/Statistics';
 import { AuthScreen } from './components/AuthScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useBudget } from './hooks/useBudget';
@@ -98,7 +99,7 @@ function AppInner() {
 
   const sym            = budget.getCurrencySymbol();
   const archivedMonths = budget.getArchivedMonths();
-  const showNav: Screen[] = ['dashboard','transactions','add','categories','archive','profile'];
+  const showNav: Screen[] = ['dashboard','transactions','add','categories','archive','profile','stats'];
 
   const renderScreen = () => {
     switch (screen) {
@@ -139,6 +140,12 @@ function AppInner() {
           totalSavings={budget.totalSavings} netBalance={budget.netBalance}
           onUpdateSettings={budget.updateSettings} onReset={budget.resetApp}
           onNavigate={nav} />;
+      case 'stats':
+        return <Statistics
+          transactions={budget.currentTransactions}
+          categories={budget.categories}
+          currencySymbol={sym}
+          totalExpenses={budget.totalExpenses} />;
       default:
         return null;
     }
