@@ -158,6 +158,47 @@ export const Dashboard = ({
         </div>
       </motion.div>
 
+      {/* AI Smart Advisor — Breathing Glow Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 14, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 0.08, duration: 0.5 }}
+        className="rounded-2xl p-5 relative overflow-hidden"
+        style={{
+          background: 'rgba(15,23,42,0.6)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: `1px solid ${advisor.color}40`,
+          animation: 'advisorBreath 4.2s ease-in-out infinite',
+          ['--advisor-glow' as any]: advisor.glow,
+          willChange: 'box-shadow, transform',
+        }}>
+        <style>{`
+          @keyframes advisorBreath {
+            0%, 100% { box-shadow: 0 0 18px var(--advisor-glow), 0 0 0 0 transparent; transform: translateZ(0) scale(1); }
+            50%      { box-shadow: 0 0 38px var(--advisor-glow), 0 0 70px var(--advisor-glow); transform: translateZ(0) scale(1.005); }
+          }
+        `}</style>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: `${advisor.color}1f`, boxShadow: `0 0 14px ${advisor.color}66` }}>
+            <span className="text-base font-black" style={{ color: advisor.color }}>AI</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-black text-white">المستشار الذكي</p>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: `${advisor.color}1a`, color: advisor.color, border: `1px solid ${advisor.color}40` }}>
+                {totalIncome > 0 ? `${((totalExpenses/totalIncome)*100).toFixed(0)}% إنفاق` : 'بدء'}
+              </span>
+            </div>
+            <p className="text-xs leading-relaxed" style={{ color: '#E5E7EB' }}>
+              {advisor.msg}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Dual Progress: Spending (top) + Savings (bottom) */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="rounded-2xl p-5 space-y-5"
