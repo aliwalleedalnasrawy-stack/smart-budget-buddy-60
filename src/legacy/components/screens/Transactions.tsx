@@ -40,7 +40,18 @@ export const Transactions = ({ transactions, categories, currencySymbol, filterC
 
   return (
     <div className="pb-28 pt-4 px-4 max-w-lg mx-auto">
-      <h2 className="text-xl font-black text-white mb-4">المعاملات</h2>
+      {filterCategory && filterCategory !== 'all' ? (
+        <div className="mb-4">
+          <h2 className="text-xl font-black text-white">
+            {categories.find(c => c.id === filterCategory)?.name ?? 'الفئة'}
+          </h2>
+          <p className="text-xs mt-1" style={{ color: '#6B7280' }}>
+            {list.length} عملية ضمن هذه الفئة
+          </p>
+        </div>
+      ) : (
+        <h2 className="text-xl font-black text-white mb-4">المعاملات</h2>
+      )}
 
       <div className="flex items-center gap-3 rounded-2xl px-4 py-3 mb-3"
         style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -138,15 +149,25 @@ const TxCard = ({ tx, cat, color, currencySymbol, typeAr, onDelete }: {
           <CategoryIcon name={cat?.icon ?? 'MoreHorizontal'} size={20} color={cat?.color ?? '#6B7280'}/>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-white text-sm">{cat?.name ?? tx.category}</p>
-          <div className="flex items-center gap-2 mt-0.5">
+          <p className="font-semibold text-white text-sm truncate">
+            {tx.name?.trim() || tx.note?.trim() || cat?.name || tx.category}
+          </p>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
               style={{ background: `${color}18`, color }}>
               {typeAr(tx.type)}
             </span>
-            <span className="text-[10px]" style={{ color: '#374151' }}>{tx.date}</span>
+            {cat?.name && (tx.name?.trim() || tx.note?.trim()) && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full"
+                style={{ background: `${cat.color}14`, color: cat.color }}>
+                {cat.name}
+              </span>
+            )}
+            <span className="text-[10px]" style={{ color: '#6B7280' }}>{tx.date}</span>
           </div>
-          {tx.note && <p className="text-xs mt-0.5 truncate" style={{ color: '#4B5563' }}>{tx.note}</p>}
+          {tx.note && tx.name?.trim() && (
+            <p className="text-xs mt-0.5 truncate" style={{ color: '#4B5563' }}>{tx.note}</p>
+          )}
         </div>
         <p className="text-base font-black flex-shrink-0" style={{ color }}>
           {tx.type === 'income' ? '+' : '-'}{tx.amount.toLocaleString('ar-IQ')}
