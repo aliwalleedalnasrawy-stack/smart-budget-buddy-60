@@ -37,13 +37,36 @@ export const Dashboard = ({
   const [showTip, setShowTip] = useState(false);
   const monthYearDisplay = useMemo(() => getMonthYearDisplay(currentMonth), [currentMonth]);
 
-  const tip = () => {
-    if (savingsProgress >= 100) return 'ممتاز! تجاوزت هدف الادخار. استمر في هذا النهج الرائع!';
-    if (savingsProgress >= 80)  return 'أنت على الطريق الصحيح! قليل من الجهد وستصل لهدفك.';
-    if (savingsProgress >= 50)  return 'وفقاً لقاعدة 80/20، وفّر 20% من دخلك. حاول تقليص مصاريف الترفيه.';
-    if (totalIncome === 0)      return 'أضف مصادر دخلك لتبدأ رحلتك المالية مع علي الذكي!';
-    return 'تنبيه: مدخراتك دون المستهدف. راجع مصاريفك وابحث عن فرص لتوفير 20% من دخلك.';
-  };
+  // AI Advisor: dynamic tip based on expense ratio vs income (treated as monthly budget)
+  const advisor = (() => {
+    const ratio = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+    if (totalIncome === 0) {
+      return {
+        tone: 'neutral' as const,
+        color: '#94A3B8',
+        glow: 'rgba(148,163,184,0.45)',
+        title: 'ابدأ رحلتك المالية',
+        msg: 'أضف مصادر دخلك لتبدأ رحلتك المالية مع علي الذكي!',
+      };
+    }
+    if (ratio < 50) return {
+      tone: 'good' as const, color: '#00FF7F', glow: 'rgba(0,255,127,0.55)',
+      title: 'أداء مالي مذهل',
+      msg: 'أداء مالي مذهل! أنت تسير بخطى ثابتة نحو هدفك الادخاري لهذا الشهر.',
+    };
+    if (ratio <= 80) return {
+      tone: 'mid' as const, color: '#3B82F6', glow: 'rgba(59,130,246,0.55)',
+      title: 'توازن جيد',
+      msg: "توازن جيد، لكن راقب مصروفاتك في فئة 'الكماليات' لضمان الاستمرارية.",
+    };
+    return {
+      tone: 'warn' as const, color: '#EF4444', glow: 'rgba(239,68,68,0.6)',
+      title: 'تنبيه ميزانية',
+      msg: 'تنبيه: ميزانيتك تقترب من النفاد. قلل الإنفاق الآن لتجنب العجز المالي.',
+    };
+  })();
+
+  const tip = () => advisor.msg;
 
   const savingsBarColor = () => {
     if (savingsProgress >= 100) return '#00FF7F';
@@ -132,6 +155,47 @@ export const Dashboard = ({
               <p className="text-[10px] mt-0.5" style={{ color: '#4B5563' }}>{label}</p>
             </div>
           ))}
+        </div>
+      </motion.div>
+
+      {/* AI Smart Advisor — Breathing Glow Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 14, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 0.08, duration: 0.5 }}
+        className="rounded-2xl p-5 relative overflow-hidden"
+        style={{
+          background: 'rgba(15,23,42,0.6)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: `1px solid ${advisor.color}40`,
+          animation: 'advisorBreath 4.2s ease-in-out infinite',
+          ['--advisor-glow' as any]: advisor.glow,
+          willChange: 'box-shadow, transform',
+        }}>
+        <style>{`
+          @keyframes advisorBreath {
+            0%, 100% { box-shadow: 0 0 18px var(--advisor-glow), 0 0 0 0 transparent; transform: translateZ(0) scale(1); }
+            50%      { box-shadow: 0 0 38px var(--advisor-glow), 0 0 70px var(--advisor-glow); transform: translateZ(0) scale(1.005); }
+          }
+        `}</style>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+            style={{ background: `${advisor.color}1f`, boxShadow: `0 0 14px ${advisor.color}66` }}>
+            <span className="text-base font-black" style={{ color: advisor.color }}>AI</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-black text-white">المستشار الذكي</p>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: `${advisor.color}1a`, color: advisor.color, border: `1px solid ${advisor.color}40` }}>
+                {totalIncome > 0 ? `${((totalExpenses/totalIncome)*100).toFixed(0)}% إنفاق` : 'بدء'}
+              </span>
+            </div>
+            <p className="text-xs leading-relaxed" style={{ color: '#E5E7EB' }}>
+              {advisor.msg}
+            </p>
+          </div>
         </div>
       </motion.div>
 

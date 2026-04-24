@@ -50,4 +50,4 @@ export interface AppSettings {
   avatarUrl?: string;
 }
 
-export type Screen = "splash" | "setup" | "dashboard" | "transactions" | "add" | "categories" | "archive" | "profile";
+export type Screen = "splash" | "setup" | "dashboard" | "transactions" | "add" | "categories" | "archive" | "profile" | "stats";
