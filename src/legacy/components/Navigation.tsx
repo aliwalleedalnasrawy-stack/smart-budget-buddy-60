@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
-import { LayoutDashboard, ArrowLeftRight, PlusCircle, Tag, Archive, type LucideProps } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, PlusCircle, ChartPie, Archive, type LucideProps } from 'lucide-react';
 import { type FC } from 'react';
 import { Screen } from '../types';
 
 const ITEMS: { screen: Screen; label: string; Icon: FC<LucideProps> }[] = [
-  { screen: 'dashboard',    label: 'الرئيسية',  Icon: LayoutDashboard },
-  { screen: 'transactions', label: 'المعاملات', Icon: ArrowLeftRight },
-  { screen: 'add',          label: 'إضافة',     Icon: PlusCircle },
-  { screen: 'categories',   label: 'الفئات',    Icon: Tag },
-  { screen: 'archive',      label: 'الأرشيف',   Icon: Archive },
+  { screen: 'dashboard',    label: 'الرئيسية',   Icon: LayoutDashboard },
+  { screen: 'transactions', label: 'المعاملات',  Icon: ArrowLeftRight },
+  { screen: 'add',          label: 'إضافة',      Icon: PlusCircle },
+  { screen: 'stats',        label: 'الإحصائيات', Icon: ChartPie },
+  { screen: 'archive',      label: 'الأرشيف',    Icon: Archive },
 ];
 
 export const Navigation = ({ current, onNavigate }: { current: Screen; onNavigate: (s: Screen) => void }) => (
