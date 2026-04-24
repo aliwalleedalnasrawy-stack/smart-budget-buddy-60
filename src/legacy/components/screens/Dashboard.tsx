@@ -37,13 +37,36 @@ export const Dashboard = ({
   const [showTip, setShowTip] = useState(false);
   const monthYearDisplay = useMemo(() => getMonthYearDisplay(currentMonth), [currentMonth]);
 
-  const tip = () => {
-    if (savingsProgress >= 100) return 'ممتاز! تجاوزت هدف الادخار. استمر في هذا النهج الرائع!';
-    if (savingsProgress >= 80)  return 'أنت على الطريق الصحيح! قليل من الجهد وستصل لهدفك.';
-    if (savingsProgress >= 50)  return 'وفقاً لقاعدة 80/20، وفّر 20% من دخلك. حاول تقليص مصاريف الترفيه.';
-    if (totalIncome === 0)      return 'أضف مصادر دخلك لتبدأ رحلتك المالية مع علي الذكي!';
-    return 'تنبيه: مدخراتك دون المستهدف. راجع مصاريفك وابحث عن فرص لتوفير 20% من دخلك.';
-  };
+  // AI Advisor: dynamic tip based on expense ratio vs income (treated as monthly budget)
+  const advisor = (() => {
+    const ratio = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+    if (totalIncome === 0) {
+      return {
+        tone: 'neutral' as const,
+        color: '#94A3B8',
+        glow: 'rgba(148,163,184,0.45)',
+        title: 'ابدأ رحلتك المالية',
+        msg: 'أضف مصادر دخلك لتبدأ رحلتك المالية مع علي الذكي!',
+      };
+    }
+    if (ratio < 50) return {
+      tone: 'good' as const, color: '#00FF7F', glow: 'rgba(0,255,127,0.55)',
+      title: 'أداء مالي مذهل',
+      msg: 'أداء مالي مذهل! أنت تسير بخطى ثابتة نحو هدفك الادخاري لهذا الشهر.',
+    };
+    if (ratio <= 80) return {
+      tone: 'mid' as const, color: '#3B82F6', glow: 'rgba(59,130,246,0.55)',
+      title: 'توازن جيد',
+      msg: "توازن جيد، لكن راقب مصروفاتك في فئة 'الكماليات' لضمان الاستمرارية.",
+    };
+    return {
+      tone: 'warn' as const, color: '#EF4444', glow: 'rgba(239,68,68,0.6)',
+      title: 'تنبيه ميزانية',
+      msg: 'تنبيه: ميزانيتك تقترب من النفاد. قلل الإنفاق الآن لتجنب العجز المالي.',
+    };
+  })();
+
+  const tip = () => advisor.msg;
 
   const savingsBarColor = () => {
     if (savingsProgress >= 100) return '#00FF7F';
