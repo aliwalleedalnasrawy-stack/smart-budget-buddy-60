@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_goals: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          goal_type: string
+          id: string
+          month: string | null
+          target_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          goal_type?: string
+          id?: string
+          month?: string | null
+          target_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          goal_type?: string
+          id?: string
+          month?: string | null
+          target_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           cat_type: string
@@ -51,6 +84,48 @@ export type Database = {
           id?: string
           legacy_id?: string | null
           name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      monthly_archives: {
+        Row: {
+          archived_at: string
+          created_at: string
+          id: string
+          month: string
+          net_balance: number
+          total_expenses: number
+          total_income: number
+          total_savings: number
+          transaction_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string
+          created_at?: string
+          id?: string
+          month: string
+          net_balance?: number
+          total_expenses?: number
+          total_income?: number
+          total_savings?: number
+          transaction_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string
+          created_at?: string
+          id?: string
+          month?: string
+          net_balance?: number
+          total_expenses?: number
+          total_income?: number
+          total_savings?: number
+          transaction_count?: number
           updated_at?: string
           user_id?: string
         }
@@ -172,7 +247,50 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      archive_month: {
+        Args: { _month: string; _user_id: string }
+        Returns: {
+          archived_at: string
+          created_at: string
+          id: string
+          month: string
+          net_balance: number
+          total_expenses: number
+          total_income: number
+          total_savings: number
+          transaction_count: number
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "monthly_archives"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      auto_archive_previous_month: {
+        Args: never
+        Returns: {
+          archived_at: string
+          created_at: string
+          id: string
+          month: string
+          net_balance: number
+          total_expenses: number
+          total_income: number
+          total_savings: number
+          transaction_count: number
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "monthly_archives"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never
