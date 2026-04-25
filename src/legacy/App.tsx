@@ -54,6 +54,16 @@ function AppInner() {
     const done = localStorage.getItem(rolloverKey);
     // Only prompt once per (user × previous month)
     if (done === previousMonthData.month) return;
+
+    // Persist the previous month's summary to the monthly_archives table
+    // so it becomes a permanent historical record in the database.
+    const archiveKey = `ali_archived_${user.id}_${previousMonthData.month}`;
+    if (!localStorage.getItem(archiveKey)) {
+      supabase.rpc('auto_archive_previous_month').then(({ error }) => {
+        if (!error) localStorage.setItem(archiveKey, '1');
+      });
+    }
+
     if (previousMonthData.netBalance === 0) {
       localStorage.setItem(rolloverKey, previousMonthData.month);
       return;
