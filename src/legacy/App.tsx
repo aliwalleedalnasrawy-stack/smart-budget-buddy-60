@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SplashScreen } from './components/SplashScreen';
+import { RolloverModal } from './components/RolloverModal';
+import { toast } from 'sonner';
 import { CurrencySetup } from './components/CurrencySetup';
 import { Navigation } from './components/Navigation';
 import { Dashboard } from './components/screens/Dashboard';
