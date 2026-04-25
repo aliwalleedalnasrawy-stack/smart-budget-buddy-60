@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SplashScreen } from './components/SplashScreen';
+import { RolloverModal } from './components/RolloverModal';
+import { toast } from 'sonner';
 import { CurrencySetup } from './components/CurrencySetup';
 import { Navigation } from './components/Navigation';
 import { Dashboard } from './components/screens/Dashboard';
@@ -32,6 +34,63 @@ function AppInner() {
   const [filterCat, setFilter] = useState<string | undefined>(undefined);
   const budget = useBudget();
   useOnlineStatus();
+
+  // ---- Monthly rollover detection ----
+  const rolloverKey = user ? `ali_rollover_done_${user.id}` : '';
+  const previousMonthData = useMemo(() => {
+    if (!budget.loaded) return null;
+    const archives = budget.getArchivedMonths();
+    if (archives.length === 0) return null;
+    // Most recent archived month (sorted desc already)
+    return archives[0];
+  }, [budget]);
+
+  const [rolloverOpen, setRolloverOpen] = useState(false);
+  const [rolloverData, setRolloverData] = useState<{ month: string; leftover: number } | null>(null);
+
+  useEffect(() => {
+    if (!user || !budget.loaded || !previousMonthData) return;
+    const done = localStorage.getItem(rolloverKey);
+    // Only prompt once per (user × previous month)
+    if (done === previousMonthData.month) return;
+    if (previousMonthData.netBalance === 0) {
+      localStorage.setItem(rolloverKey, previousMonthData.month);
+      return;
+    }
+    setRolloverData({ month: previousMonthData.month, leftover: previousMonthData.netBalance });
+    setRolloverOpen(true);
+  }, [user, budget.loaded, previousMonthData, rolloverKey]);
+
+  const handleRolloverChoice = useCallback(async (choice: 'saving' | 'income' | 'ignore') => {
+    if (!rolloverData) return;
+    const { month, leftover } = rolloverData;
+    setRolloverOpen(false);
+
+    if (choice !== 'ignore' && leftover > 0) {
+      const today = new Date().toISOString().slice(0, 10);
+      try {
+        if (choice === 'saving') {
+          await budget.addTransaction({
+            name: `ترحيل من ${month}`, amount: leftover, type: 'saving',
+            category: 'savings_cat', date: today,
+            note: 'رصيد متبقي من الشهر السابق',
+          });
+          toast.success('تمت إضافة الرصيد كادخار');
+        } else {
+          await budget.addTransaction({
+            name: `ترحيل من ${month}`, amount: leftover, type: 'income',
+            category: 'salary', date: today,
+            note: 'رصيد متبقي من الشهر السابق',
+          });
+          toast.success('تمت إضافة الرصيد كدخل جديد');
+        }
+      } catch {
+        toast.error('تعذر ترحيل الرصيد');
+      }
+    }
+    localStorage.setItem(rolloverKey, month);
+    setRolloverData(null);
+  }, [rolloverData, budget, rolloverKey]);
 
   const screen = stack[stack.length - 1];
 
@@ -169,6 +228,15 @@ function AppInner() {
           </main>
           <Navigation current={screen} onNavigate={nav} />
         </>
+      )}
+      {rolloverData && (
+        <RolloverModal
+          open={rolloverOpen}
+          previousMonth={rolloverData.month}
+          leftover={rolloverData.leftover}
+          currencySymbol={sym}
+          onChoose={handleRolloverChoice}
+        />
       )}
     </div>
   );
