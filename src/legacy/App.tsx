@@ -115,6 +115,7 @@ function AppInner() {
         return <Transactions
           transactions={budget.currentTransactions} categories={budget.categories}
           currencySymbol={sym} filterCategory={filterCat}
+          archivedMonths={archivedMonths}
           onDelete={budget.deleteTransaction} onUndo={budget.undoDelete} />;
       case 'add':
         return <AddTransaction
