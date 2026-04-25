@@ -19,6 +19,7 @@ import { useBackNavigation } from './hooks/useBackNavigation';
 import { useOnlineStatus } from './hooks/useOfflineSync';
 import { Screen, Currency } from './types';
 import { Toaster } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const pv = {
   initial: { opacity: 0, y: 10 },
