@@ -39,7 +39,7 @@ export const Transactions = ({ transactions, categories, currencySymbol, filterC
   const typeAr = (t: string) => t === 'income' ? 'دخل' : t === 'expense' ? 'مصروف' : 'مدخرات';
   const typeClr = (t: string) => t === 'income' ? '#00FF7F' : t === 'saving' ? '#D4A017' : '#EF4444';
 
-  const list = transactions.filter(tx => {
+  const list = sourceTx.filter(tx => {
     const cat = categories.find(c => c.id === tx.category);
     return (!search || cat?.name.includes(search) || tx.note?.includes(search) || tx.amount.toString().includes(search))
       && (filter === 'all' || tx.type === filter)
@@ -58,7 +58,32 @@ export const Transactions = ({ transactions, categories, currencySymbol, filterC
           </p>
         </div>
       ) : (
-        <h2 className="text-xl font-black text-white mb-4">المعاملات</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-black text-white">
+            {view === 'archive' ? 'الأرشيف' : 'المعاملات'}
+          </h2>
+          <div className="flex items-center gap-1 p-1 rounded-xl"
+            style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <button onClick={() => setView('current')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+              style={{
+                background: view === 'current' ? 'rgba(212,160,23,0.15)' : 'transparent',
+                color: view === 'current' ? '#D4A017' : '#6B7280',
+                boxShadow: view === 'current' ? '0 0 8px rgba(212,160,23,0.3)' : 'none',
+              }}>
+              <List size={13}/> الحالي
+            </button>
+            <button onClick={() => setView('archive')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+              style={{
+                background: view === 'archive' ? 'rgba(168,85,247,0.15)' : 'transparent',
+                color: view === 'archive' ? '#A855F7' : '#6B7280',
+                boxShadow: view === 'archive' ? '0 0 8px rgba(168,85,247,0.3)' : 'none',
+              }}>
+              <ArchiveIcon size={13}/> الأرشيف
+            </button>
+          </div>
+        </div>
       )}
 
       <div className="flex items-center gap-3 rounded-2xl px-4 py-3 mb-3"
