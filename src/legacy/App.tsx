@@ -99,7 +99,7 @@ function AppInner() {
 
   const sym            = budget.getCurrencySymbol();
   const archivedMonths = budget.getArchivedMonths();
-  const showNav: Screen[] = ['dashboard','transactions','add','categories','archive','profile','stats'];
+  const showNav: Screen[] = ['dashboard','transactions','add','categories','profile','stats'];
 
   const renderScreen = () => {
     switch (screen) {
@@ -115,6 +115,7 @@ function AppInner() {
         return <Transactions
           transactions={budget.currentTransactions} categories={budget.categories}
           currencySymbol={sym} filterCategory={filterCat}
+          archivedMonths={archivedMonths}
           onDelete={budget.deleteTransaction} onUndo={budget.undoDelete} />;
       case 'add':
         return <AddTransaction
