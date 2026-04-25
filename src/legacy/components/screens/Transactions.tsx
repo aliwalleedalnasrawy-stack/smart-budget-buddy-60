@@ -1,22 +1,30 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
-import { Trash2, Undo2, Search } from 'lucide-react';
-import { Transaction, Category } from '../../types';
+import { Trash2, Undo2, Search, Archive as ArchiveIcon, List } from 'lucide-react';
+import { Transaction, Category, ArchivedMonth } from '../../types';
 import { CategoryIcon } from '../CategoryIcon';
 
 interface Props {
   transactions: Transaction[]; categories: Category[];
   currencySymbol: string; filterCategory?: string;
+  archivedMonths?: ArchivedMonth[];
   onDelete: (id: string) => void; onUndo: (tx: Transaction) => void;
 }
 
-export const Transactions = ({ transactions, categories, currencySymbol, filterCategory, onDelete, onUndo }: Props) => {
+export const Transactions = ({ transactions, categories, currencySymbol, filterCategory, archivedMonths = [], onDelete, onUndo }: Props) => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'income' | 'expense' | 'saving'>('all');
   const [catFilter] = useState(filterCategory ?? 'all');
+  const [view, setView] = useState<'current' | 'archive'>('current');
   const [deleted, setDeleted] = useState<Transaction | null>(null);
   const [undo, setUndo] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const archivedTx = useMemo(
+    () => archivedMonths.flatMap(m => m.transactions.map(t => ({ ...t, _monthLabel: m.label }))),
+    [archivedMonths]
+  );
+  const sourceTx = view === 'archive' ? archivedTx : transactions;
 
   const del = (tx: Transaction) => {
     onDelete(tx.id); setDeleted(tx); setUndo(true);
