@@ -99,7 +99,7 @@ function AppInner() {
 
   const sym            = budget.getCurrencySymbol();
   const archivedMonths = budget.getArchivedMonths();
-  const showNav: Screen[] = ['dashboard','transactions','add','categories','archive','profile','stats'];
+  const showNav: Screen[] = ['dashboard','transactions','add','categories','profile','stats'];
 
   const renderScreen = () => {
     switch (screen) {
