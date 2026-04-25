@@ -229,6 +229,15 @@ function AppInner() {
           <Navigation current={screen} onNavigate={nav} />
         </>
       )}
+      {rolloverData && (
+        <RolloverModal
+          open={rolloverOpen}
+          previousMonth={rolloverData.month}
+          leftover={rolloverData.leftover}
+          currencySymbol={sym}
+          onChoose={handleRolloverChoice}
+        />
+      )}
     </div>
   );
 }
