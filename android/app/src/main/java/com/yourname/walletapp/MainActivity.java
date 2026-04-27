@@ -39,6 +39,7 @@ jobs:
       - name: Build with Gradle
         run: |
           cd android
+          ./gradlew clean
           ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
