@@ -1,20 +1,14 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.yourname.walletapp',
+  appId: 'com.smartbudget.buddy',
   appName: 'ميزانيتي الذكية',
-  webDir: 'dist/client',
-  bundledWebRuntime: false,
+  webDir: 'dist',
   android: {
     allowMixedContent: true,
   },
   server: {
     androidScheme: 'https',
-  },
-  plugins: {
-    CapacitorAnalytics: {
-      analytics: false,
-    },
   },
 };
 
