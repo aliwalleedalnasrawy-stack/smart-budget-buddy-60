@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.smartbudget.buddy',
   appName: 'ميزانيتي الذكية',
-  webDir: 'dist',
+  webDir: 'dist/client',
   android: {
     allowMixedContent: true,
   },
