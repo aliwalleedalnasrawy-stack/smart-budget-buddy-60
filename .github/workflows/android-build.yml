@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir -p dist
           echo "<html><body>Temporary Build</body></html>" > dist/index.html
-          npm run build || echo "Build script missing, skipping..."
+          npm run build || echo "Build script missing, proceeding manually"
 
       - name: Initialize Capacitor Android
         run: |
@@ -45,13 +45,21 @@ jobs:
         run: yes | sdkmanager --licenses
 
       - name: Grant Gradle Permissions
-        run: chmod +x android/gradlew
+        run: |
+          if [ -d "android" ]; then
+            chmod +x android/gradlew
+          fi
 
       - name: Build with Gradle
         run: |
-          cd android
-          ./gradlew clean
-          ./gradlew assembleDebug --stacktrace
+          if [ -d "android" ]; then
+            cd android
+            ./gradlew clean
+            ./gradlew assembleDebug --stacktrace
+          else
+            echo "Error: Android directory still missing!"
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
