@@ -33,17 +33,37 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Prepare dist/client with index.html
+      - name: Fix dist structure for Capacitor
         run: |
           mkdir -p dist/client
           if [ -f "dist/server/index.html" ]; then
             cp dist/server/index.html dist/client/index.html
-          else
-            find dist -name "index.html" -not -path "*/client/*" | head -1 | xargs -I{} cp {} dist/client/index.html 2>/dev/null || true
           fi
           if [ ! -f "dist/client/index.html" ]; then
-            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ميزانيتي الذكية</title></head><body><div id="root"></div></body></html>' > dist/client/index.html
+            find dist -name "index.html" | head -1 | xargs -I{} cp {} dist/client/ 2>/dev/null || true
           fi
+          if [ ! -f "dist/client/index.html" ]; then
+            cat > dist/client/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+            <title>ميزانيتي الذكية</title>
+            <script>
+              // Redirect to assets
+              window.location.href = '/index.html';
+            </script>
+          </head>
+          <body>
+            <div id="root"></div>
+          </body>
+          </html>
+          EOF
+          fi
+          cp -r dist/client/assets dist/client/ 2>/dev/null || true
+          echo "=== Final dist/client ==="
+          ls -la dist/client/
 
       - name: Remove old Android folder
         run: rm -rf android
@@ -63,7 +83,6 @@ jobs:
             convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher.png"
             convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher_round.png"
           done
-          echo "Icons generated!"
 
       - name: Sync web assets to Android
         run: npx cap sync android
