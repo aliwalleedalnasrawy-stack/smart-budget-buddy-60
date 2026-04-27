@@ -44,16 +44,26 @@ jobs:
           if [ ! -f "dist/client/index.html" ]; then
             echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ميزانيتي الذكية</title></head><body><div id="root"></div></body></html>' > dist/client/index.html
           fi
-          echo "=== dist/client contents ==="
-          ls -la dist/client/
 
       - name: Remove old Android folder
         run: rm -rf android
 
       - name: Add Android platform
         run: npx cap add android
-        env:
-          CAPACITOR_ANDROID_STUDIO_PATH: ""
+
+      - name: Generate Android icons
+        run: |
+          sudo apt-get install -y imagemagick
+          ICON_SRC="public/1000135335.png"
+          MIPMAP_PATH="android/app/src/main/res"
+          for DIR_SIZE in "mipmap-mdpi:48" "mipmap-hdpi:72" "mipmap-xhdpi:96" "mipmap-xxhdpi:144" "mipmap-xxxhdpi:192"; do
+            DIR="${DIR_SIZE%%:*}"
+            SIZE="${DIR_SIZE##*:}"
+            mkdir -p "$MIPMAP_PATH/$DIR"
+            convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher.png"
+            convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher_round.png"
+          done
+          echo "Icons generated!"
 
       - name: Sync web assets to Android
         run: npx cap sync android
