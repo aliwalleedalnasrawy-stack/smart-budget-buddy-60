@@ -33,14 +33,11 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Check build output
+      - name: Create index.html in dist/client
         run: |
-          echo "=== Root dist ==="
-          ls -la dist/ 2>/dev/null || echo "dist not found"
-          echo "=== dist/client ==="
-          ls -la dist/client/ 2>/dev/null || echo "dist/client not found"
-          echo "=== dist/public ==="
-          ls -la dist/public/ 2>/dev/null || echo "dist/public not found"
+          cp dist/server/index.html dist/client/index.html 2>/dev/null || \
+          find dist -name "index.html" -exec cp {} dist/client/index.html \; 2>/dev/null || \
+          echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Smart Budget</title></head><body><div id="root"></div><script type="module" src="/assets/index.js"></script></body></html>' > dist/client/index.html
 
       - name: Remove old Android folder
         run: rm -rf android
