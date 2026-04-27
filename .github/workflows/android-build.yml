@@ -66,6 +66,9 @@ jobs:
       - name: Sync Capacitor with Android
         run: npx cap sync android
 
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./android/gradlew
+
       - name: Commit generated Android project files
         if: github.event_name == 'push' && steps.ensure_android.outputs.generated == 'true'
         run: |
@@ -78,9 +81,6 @@ jobs:
           else
             echo "No generated Android changes to commit."
           fi
-
-      - name: Grant execute permission to gradlew
-        run: chmod +x ./android/gradlew
 
       - name: Accept Android SDK Licenses
         run: yes | sdkmanager --licenses || true
