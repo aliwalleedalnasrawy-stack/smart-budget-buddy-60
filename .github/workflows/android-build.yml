@@ -7,6 +7,9 @@ on:
     branches: ["**"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build Debug APK
@@ -29,9 +32,18 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+
+      - name: Ensure Capacitor CLI & Android packages
+        run: |
+          npm install --legacy-peer-deps \
+            @capacitor/core@latest \
+            @capacitor/cli@latest \
+            @capacitor/android@latest
 
       - name: Build web assets
         run: npm run build
@@ -39,8 +51,14 @@ jobs:
       - name: Add Android platform (if missing)
         run: |
           if [ ! -d "android" ]; then
+            echo "Android folder not found, generating with Capacitor..."
             npx cap add android
+          else
+            echo "Android folder already present, skipping cap add."
           fi
+
+      - name: Copy web assets to native project
+        run: npx cap copy android
 
       - name: Sync Capacitor with Android
         run: npx cap sync android
@@ -48,14 +66,23 @@ jobs:
       - name: Grant execute permission to gradlew
         run: chmod +x ./android/gradlew
 
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses || true
+
       - name: Build Debug APK with Gradle
         working-directory: ./android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: List APK output (debug)
+        if: always()
+        run: |
+          echo "Listing APK outputs..."
+          find android/app/build/outputs -type f -name "*.apk" || true
 
       - name: Upload Debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 30
