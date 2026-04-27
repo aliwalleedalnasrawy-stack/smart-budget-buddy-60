@@ -33,20 +33,30 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Create index.html in dist/client
+      - name: Prepare dist/client with index.html
         run: |
-          cp dist/server/index.html dist/client/index.html 2>/dev/null || \
-          find dist -name "index.html" -exec cp {} dist/client/index.html \; 2>/dev/null || \
-          echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Smart Budget</title></head><body><div id="root"></div><script type="module" src="/assets/index.js"></script></body></html>' > dist/client/index.html
+          mkdir -p dist/client
+          if [ -f "dist/server/index.html" ]; then
+            cp dist/server/index.html dist/client/index.html
+          else
+            find dist -name "index.html" -not -path "*/client/*" | head -1 | xargs -I{} cp {} dist/client/index.html 2>/dev/null || true
+          fi
+          if [ ! -f "dist/client/index.html" ]; then
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ميزانيتي الذكية</title></head><body><div id="root"></div></body></html>' > dist/client/index.html
+          fi
+          echo "=== dist/client contents ==="
+          ls -la dist/client/
 
       - name: Remove old Android folder
         run: rm -rf android
 
-      - name: Add Android platform fresh
+      - name: Add Android platform
         run: npx cap add android
+        env:
+          CAPACITOR_ANDROID_STUDIO_PATH: ""
 
-      - name: Copy web assets to Android
-        run: npx cap copy android
+      - name: Sync web assets to Android
+        run: npx cap sync android --no-deps
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
