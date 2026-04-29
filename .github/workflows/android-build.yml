@@ -27,19 +27,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build web assets
-        run: npm run build
+      - name: Build mobile web assets
+        run: npx vite build --config vite.mobile.config.ts
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
-
-      - name: Override index.html with mobile version
-        run: |
-          mkdir -p dist/client
-          cp public/index.html dist/client/index.html
-          echo "=== Final index.html ==="
-          cat dist/client/index.html
 
       - name: Remove old Android folder
         run: rm -rf android
