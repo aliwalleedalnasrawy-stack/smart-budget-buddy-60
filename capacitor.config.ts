@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.yourname.walletapp',
   appName: 'ميزانيتي الذكية',
-  webDir: 'dist/mobile',   // ← تغيير من dist/client إلى dist/mobile
+  webDir: 'dist',
   bundledWebRuntime: false,
   android: {
     allowMixedContent: true,
