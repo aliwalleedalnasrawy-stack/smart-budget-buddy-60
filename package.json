@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:android:web": "vite build && node scripts/prepare-capacitor-web.mjs",
+"build:mobile": "vite build --outDir dist-mobile --base ./ --mode production",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
