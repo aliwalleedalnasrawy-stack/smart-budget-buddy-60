@@ -27,41 +27,43 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build web assets
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: Prepare Capacitor web dir
+      - name: Create mobile index.html
         run: |
-          mkdir -p dist/client
-          find dist -name "*.js" -o -name "*.css" | head -5
-          echo "=== dist structure ==="
-          find dist -type f | head -30
-          cp -r dist/client/* dist/client/ 2>/dev/null || true
-          JSFILE=$(find dist -name "*.js" -not -path "*/server/*" | head -1)
-          CSSFILE=$(find dist -name "*.css" -not -path "*/server/*" | head -1)
-          echo "JS: $JSFILE"
-          echo "CSS: $CSSFILE"
-          cat > dist/client/index.html << HTMLEOF
+          cat > index.mobile.html << 'EOF'
           <!DOCTYPE html>
           <html lang="ar" dir="rtl">
           <head>
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
             <title>ميزانيتي الذكية</title>
-            <meta name="theme-color" content="#000000" />
-            ${CSSFILE:+<link rel="stylesheet" href="/${CSSFILE#dist/client/}">}
           </head>
           <body>
-            <div id="root">جاري التحميل...</div>
-            ${JSFILE:+<script type="module" src="/${JSFILE#dist/client/}"></script>}
+            <div id="root"></div>
+            <script type="module" src="/src/client.tsx"></script>
           </body>
           </html>
-          HTMLEOF
-          echo "=== Final index.html ==="
-          cat dist/client/index.html
+          EOF
+
+      - name: Build mobile web assets
+        run: |
+          npx vite build --config vite.mobile.config.ts 2>/dev/null || \
+          npx vite build --entry src/client.tsx --outDir dist/client 2>/dev/null || \
+          npx vite build --outDir dist/client
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+
+      - name: Ensure index.html exists
+        run: |
+          mkdir -p dist/client
+          if [ ! -f "dist/client/index.html" ]; then
+            find dist -name "index.html" | head -1 | xargs -I{} cp {} dist/client/ 2>/dev/null || true
+          fi
+          if [ ! -f "dist/client/index.html" ]; then
+            echo '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>ميزانيتي الذكية</title></head><body><div id="root"></div></body></html>' > dist/client/index.html
+          fi
+          ls -la dist/client/
 
       - name: Remove old Android folder
         run: rm -rf android
