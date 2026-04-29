@@ -33,37 +33,35 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Fix dist structure for Capacitor
+      - name: Prepare Capacitor web dir
         run: |
           mkdir -p dist/client
-          if [ -f "dist/server/index.html" ]; then
-            cp dist/server/index.html dist/client/index.html
-          fi
-          if [ ! -f "dist/client/index.html" ]; then
-            find dist -name "index.html" | head -1 | xargs -I{} cp {} dist/client/ 2>/dev/null || true
-          fi
-          if [ ! -f "dist/client/index.html" ]; then
-            cat > dist/client/index.html << 'EOF'
+          find dist -name "*.js" -o -name "*.css" | head -5
+          echo "=== dist structure ==="
+          find dist -type f | head -30
+          cp -r dist/client/* dist/client/ 2>/dev/null || true
+          JSFILE=$(find dist -name "*.js" -not -path "*/server/*" | head -1)
+          CSSFILE=$(find dist -name "*.css" -not -path "*/server/*" | head -1)
+          echo "JS: $JSFILE"
+          echo "CSS: $CSSFILE"
+          cat > dist/client/index.html << HTMLEOF
           <!DOCTYPE html>
           <html lang="ar" dir="rtl">
           <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
             <title>ميزانيتي الذكية</title>
-            <script>
-              // Redirect to assets
-              window.location.href = '/index.html';
-            </script>
+            <meta name="theme-color" content="#000000" />
+            ${CSSFILE:+<link rel="stylesheet" href="/${CSSFILE#dist/client/}">}
           </head>
           <body>
-            <div id="root"></div>
+            <div id="root">جاري التحميل...</div>
+            ${JSFILE:+<script type="module" src="/${JSFILE#dist/client/}"></script>}
           </body>
           </html>
-          EOF
-          fi
-          cp -r dist/client/assets dist/client/ 2>/dev/null || true
-          echo "=== Final dist/client ==="
-          ls -la dist/client/
+          HTMLEOF
+          echo "=== Final index.html ==="
+          cat dist/client/index.html
 
       - name: Remove old Android folder
         run: rm -rf android
