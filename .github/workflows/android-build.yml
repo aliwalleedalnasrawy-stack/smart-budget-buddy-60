@@ -28,6 +28,13 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build:mobile
 
+      - name: Verify dist-mobile exists
+        run: |
+          echo "=== dist-mobile contents ==="
+          ls -la dist-mobile/
+          echo "=== index.html check ==="
+          head -5 dist-mobile/index.html
+
       - name: Sync Capacitor
         run: npx cap sync android
 
