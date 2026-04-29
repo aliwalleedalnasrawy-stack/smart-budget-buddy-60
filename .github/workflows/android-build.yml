@@ -18,6 +18,12 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Install dependencies
         run: npm install
 
@@ -28,15 +34,45 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
 
-      - name: Show ALL build output
+      - name: Override index.html with mobile version
         run: |
-          echo "=== Full dist structure ==="
-          find dist -type f | sort
-          echo "=== index.html content if exists ==="
-          find dist -name "index.html" -exec cat {} \;
+          mkdir -p dist/client
+          cp public/index.html dist/client/index.html
+          echo "=== Final index.html ==="
+          cat dist/client/index.html
 
-      - name: Upload dist as artifact
+      - name: Remove old Android folder
+        run: rm -rf android
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Generate Android icons
+        run: |
+          sudo apt-get install -y imagemagick
+          ICON_SRC="public/1000135335.png"
+          MIPMAP_PATH="android/app/src/main/res"
+          for DIR_SIZE in "mipmap-mdpi:48" "mipmap-hdpi:72" "mipmap-xhdpi:96" "mipmap-xxhdpi:144" "mipmap-xxxhdpi:192"; do
+            DIR="${DIR_SIZE%%:*}"
+            SIZE="${DIR_SIZE##*:}"
+            mkdir -p "$MIPMAP_PATH/$DIR"
+            convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher.png"
+            convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher_round.png"
+          done
+
+      - name: Sync web assets to Android
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: dist-output
-          path: dist/
+          name: debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
