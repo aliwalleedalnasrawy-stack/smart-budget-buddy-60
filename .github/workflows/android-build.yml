@@ -16,36 +16,45 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build mobile web assets
+        run: npm run build:mobile
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        run: npm run build:mobile
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
 
-      - name: Verify dist-mobile exists
-        run: |
-          echo "=== dist-mobile contents ==="
-          ls -la dist-mobile/
-          echo "=== index.html check ==="
-          head -5 dist-mobile/index.html
+      - name: Remove old Android folder
+        run: rm -rf android
+
+      - name: Add Android platform
+        run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Generate Android icons
+        run: |
+          sudo apt-get install -y imagemagick
+          ICON_SRC="public/1000135335.png"
+          MIPMAP_PATH="android/app/src/main/res"
+          for DIR_SIZE in "mipmap-mdpi:48" "mipmap-hdpi:72" "mipmap-xhdpi:96" "mipmap-xxhdpi:144" "mipmap-xxxhdpi:192"; do
+            DIR="${DIR_SIZE%%:*}"
+            SIZE="${DIR_SIZE##*:}"
+            mkdir -p "$MIPMAP_PATH/$DIR"
+            convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher.png"
+            convert "$ICON_SRC" -resize ${SIZE}x${SIZE} "$MIPMAP_PATH/$DIR/ic_launcher_round.png"
+          done
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -53,11 +62,10 @@ jobs:
       - name: Build Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: smart-budget-debug
+          name: debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
