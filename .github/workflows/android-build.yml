@@ -13,22 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Install dependencies
-        run: npm install
+        run: bun install
 
       - name: Build mobile web assets
-        run: npm run build:mobile
+        run: bun run build:mobile
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -38,10 +38,10 @@ jobs:
         run: rm -rf android
 
       - name: Add Android platform
-        run: npx cap add android
+        run: bunx cap add android
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: bunx cap sync android
 
       - name: Generate Android icons
         run: |
