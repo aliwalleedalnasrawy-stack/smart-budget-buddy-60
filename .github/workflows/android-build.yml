@@ -39,6 +39,13 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
 
+      - name: Check build output
+        run: |
+          echo "=== dist/mobile structure ==="
+          find dist/mobile -type f | sort
+          echo "=== index.html content ==="
+          cat dist/mobile/index.html
+
       - name: Remove old Android folder
         run: rm -rf android
 
