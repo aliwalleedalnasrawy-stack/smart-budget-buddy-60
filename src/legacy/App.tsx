@@ -20,6 +20,9 @@ import { useOnlineStatus } from './hooks/useOfflineSync';
 import { Screen, Currency } from './types';
 import { Toaster } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 
 const pv = {
   initial: { opacity: 0, y: 10 },
