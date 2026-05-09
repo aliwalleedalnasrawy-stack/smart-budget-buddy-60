@@ -10,6 +10,11 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
   },
+  plugins: {
+    Browser: {
+      androidCustomTabsEnabled: true,
+    },
+  },
 };
 
 export default config;
