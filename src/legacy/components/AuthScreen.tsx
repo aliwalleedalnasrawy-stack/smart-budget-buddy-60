@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import logo from '@/assets/app-logo-transparent.png';
 
 type Mode = 'login' | 'signup';
@@ -46,8 +48,22 @@ export const AuthScreen = () => {
   const google = async () => {
     setErr(''); setLoading(true);
     try {
-      const res = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
-      if (res.error) throw res.error;
+      if (Capacitor.isNativePlatform()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'com.yourname.walletapp://login-callback',
+            skipBrowserRedirect: true,
+          },
+        });
+        if (error) throw error;
+        if (data?.url) {
+          await Browser.open({ url: data.url, windowName: '_self' });
+        }
+      } else {
+        const res = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
+        if (res.error) throw res.error;
+      }
     } catch (e: any) {
       setErr(e?.message ?? 'فشل تسجيل الدخول عبر Google');
       setLoading(false);

@@ -20,6 +20,9 @@ import { useOnlineStatus } from './hooks/useOfflineSync';
 import { Screen, Currency } from './types';
 import { Toaster } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 
 const pv = {
   initial: { opacity: 0, y: 10 },
@@ -35,6 +38,34 @@ function AppInner() {
   const [filterCat, setFilter] = useState<string | undefined>(undefined);
   const budget = useBudget();
   useOnlineStatus();
+
+  // Deep link listener for OAuth callback (Capacitor / Android)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const sub = CapApp.addListener('appUrlOpen', async ({ url }) => {
+      try {
+        if (!url || !url.startsWith('com.yourname.walletapp://')) return;
+        const u = new URL(url);
+        // Tokens may come in hash (implicit) or as ?code= (PKCE)
+        const hash = u.hash?.startsWith('#') ? u.hash.slice(1) : '';
+        const hashParams = new URLSearchParams(hash);
+        const access_token = hashParams.get('access_token');
+        const refresh_token = hashParams.get('refresh_token');
+        const code = u.searchParams.get('code');
+
+        if (access_token && refresh_token) {
+          await supabase.auth.setSession({ access_token, refresh_token });
+        } else if (code) {
+          await supabase.auth.exchangeCodeForSession(code);
+        }
+      } catch (e) {
+        console.error('OAuth callback failed', e);
+      } finally {
+        try { await Browser.close(); } catch {}
+      }
+    });
+    return () => { sub.then(s => s.remove()); };
+  }, []);
 
   // ---- Monthly rollover detection ----
   const rolloverKey = user ? `ali_rollover_done_${user.id}` : '';
