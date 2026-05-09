@@ -48,8 +48,22 @@ export const AuthScreen = () => {
   const google = async () => {
     setErr(''); setLoading(true);
     try {
-      const res = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
-      if (res.error) throw res.error;
+      if (Capacitor.isNativePlatform()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'com.yourname.walletapp://login-callback',
+            skipBrowserRedirect: true,
+          },
+        });
+        if (error) throw error;
+        if (data?.url) {
+          await Browser.open({ url: data.url, windowName: '_self' });
+        }
+      } else {
+        const res = await lovable.auth.signInWithOAuth('google', { redirect_uri: window.location.origin });
+        if (res.error) throw res.error;
+      }
     } catch (e: any) {
       setErr(e?.message ?? 'فشل تسجيل الدخول عبر Google');
       setLoading(false);
